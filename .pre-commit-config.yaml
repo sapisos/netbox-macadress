@@ -1,0 +1,20 @@
+ci:
+  autoupdate_commit_msg: "chore: update pre-commit hooks"
+  autofix_commit_msg: "style: pre-commit fixes"
+
+repos:
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.14
+    hooks:
+    -   id: ruff
+        name: "Ruff linter"
+        args: [--fix, netbox_macadress/]
+    -   id: ruff-format
+        name: "Ruff formatter"
+        args: [netbox_macadress/]
+
+-   repo: https://github.com/mgedmin/check-manifest
+    rev: "0.51"
+    hooks:
+      - id: check-manifest
+        stages: [manual]

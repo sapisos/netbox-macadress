@@ -1,0 +1,66 @@
+{% extends 'generic/object.html' %}
+{% load helpers i18n %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-12 col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "MAC Vendor" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Prefix" %}</th>
+            <td class="font-monospace">{{ object.prefix_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Organization" %}</th>
+            <td>{{ object.organization|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Status" %}</th>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Block type" %}</th>
+            <td>{{ object.block_type|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Country" %}</th>
+            <td>{{ object.country|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Address" %}</th>
+            <td>{{ object.address|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Source" %}</th>
+            <td>{% badge object.get_source_display bg_color=object.get_source_color %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Last checked" %}</th>
+            <td>{{ object.last_checked|isodatetime }}</td>
+          </tr>
+        </table>
+        {% if not keyed %}
+          <div class="card-footer small">
+            <a href="https://macadress.com/signup" target="_blank" rel="noopener">{% trans "Add a free macadress.com API key" %}</a>
+            {% trans "to fill in block type, country and address." %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col col-12 col-md-6">
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/tags.html' %}
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h2 class="card-header">{% trans "MAC Addresses" %}</h2>
+        <div class="card-body">
+          <a href="{% url 'dcim:macaddress_list' %}?mac_address__isw={{ object.mac_prefix }}">{% trans "View MAC addresses in this block" %}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
