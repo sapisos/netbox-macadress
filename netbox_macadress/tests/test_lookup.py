@@ -40,7 +40,7 @@ class KeylessSyncTestCase(TestCase):
 
     def test_one_lookup_per_oui(self):
         make_macs("00:03:93:00:00:01", "00:03:93:00:00:02", "3C:22:FB:00:00:01")
-        client = FakeClient(names={"000393000001": "Apple, Inc.", "3C22FB000001": "Apple, Inc."})
+        client = FakeClient(names={"000393000000": "Apple, Inc.", "3C22FB000000": "Apple, Inc."})
 
         self.assertEqual(self.run_sync(client), (2, 0))
         self.assertEqual(len(client.vendor_calls), 2)
@@ -61,6 +61,13 @@ class KeylessSyncTestCase(TestCase):
         self.assertEqual(self.run_sync(client), (0, 0))
         self.assertEqual(client.vendor_calls, [])
 
+    def test_device_tail_not_sent(self):
+        # Only send the first 9 hex digits (widest block prefix that can matter, MA-S)
+        make_macs("00:03:93:AB:12:34")
+        client = FakeClient(names={"000393AB1000": "Apple, Inc."})
+        self.assertEqual(self.run_sync(client), (1, 0))
+        self.assertEqual(client.vendor_calls, ["000393AB1000"])
+
     def test_unregistered_cached(self):
         make_macs("00:00:00:00:00:01")
         self.run_sync(FakeClient())
@@ -71,7 +78,7 @@ class KeylessSyncTestCase(TestCase):
     def test_shared_oui_cached_per_block(self):
         make_macs("70:B3:D5:F0:00:01", "70:B3:D5:00:00:01")
         client = FakeClient(
-            names={"70B3D5F00001": "Aplex Technology Inc.", "70B3D5000001": "IEEE Registration Authority"}
+            names={"70B3D5F00000": "Aplex Technology Inc.", "70B3D5000000": "IEEE Registration Authority"}
         )
         self.run_sync(client)
         self.assertEqual(MACVendor.objects.for_mac("70:B3:D5:F0:00:09").organization, "Aplex Technology Inc.")
@@ -87,24 +94,24 @@ class KeylessSyncTestCase(TestCase):
 
     def test_stale_entries_refreshed(self):
         make_macs("00:03:93:00:00:01")
-        client = FakeClient(names={"000393000001": "Apple, Inc."})
+        client = FakeClient(names={"000393000000": "Apple, Inc."})
         self.run_sync(client)
         MACVendor.objects.update(last_checked=timezone.now() - timedelta(days=31))
         client.vendor_calls.clear()
         self.assertEqual(self.run_sync(client), (1, 0))
-        self.assertEqual(client.vendor_calls, ["000393000001"])
+        self.assertEqual(client.vendor_calls, ["000393000000"])
 
     def test_rate_limit_retried_once(self):
         make_macs("00:03:93:00:00:01")
         client = FakeClient(
-            names={"000393000001": "Apple, Inc."},
+            names={"000393000000": "Apple, Inc."},
             errors=[macadress.RateLimitError("slow down", retry_after=2)],
         )
         self.assertEqual(self.run_sync(client), (1, 0))
 
     def test_quota_aborts_and_keeps_progress(self):
         make_macs("00:03:93:00:00:01", "3C:22:FB:00:00:01")
-        client = FakeClient(names={"000393000001": "Apple, Inc."})
+        client = FakeClient(names={"000393000000": "Apple, Inc."})
         original = client.vendor
 
         def vendor(mac):
@@ -128,11 +135,11 @@ class KeyedSyncTestCase(TestCase):
         make_macs("00:03:93:00:00:01", "70:B3:D5:F0:00:01")
         client = FakeClient(
             items={
-                "000393000001": batch_item(
-                    "000393000001", "Apple, Inc.", country="US", address="1 Infinite Loop Cupertino CA US 95014"
+                "000393000000": batch_item(
+                    "000393000000", "Apple, Inc.", country="US", address="1 Infinite Loop Cupertino CA US 95014"
                 ),
-                "70B3D5F00001": batch_item(
-                    "70B3D5F00001", "Aplex Technology Inc.", prefix_length=36, block_type="MA-S"
+                "70B3D5F00000": batch_item(
+                    "70B3D5F00000", "Aplex Technology Inc.", prefix_length=36, block_type="MA-S"
                 ),
             }
         )
@@ -154,7 +161,7 @@ class KeyedSyncTestCase(TestCase):
             last_checked=now,
         )
         client = FakeClient(
-            items={"70B3D5F00001": batch_item("70B3D5F00001", "Someone", prefix_length=28, block_type="MA-M")}
+            items={"70B3D5F00000": batch_item("70B3D5F00000", "Someone", prefix_length=28, block_type="MA-M")}
         )
         self.assertEqual(self.run_sync(client), (1, 0))
         # The MA-M entry replaces the narrower keyless one it contains.
