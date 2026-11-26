@@ -17,6 +17,8 @@ address in NetBox, using the [macadress.com](https://macadress.com) API. It work
   lookups usually cover thousands of devices. Blocks that IEEE splits between several vendors are
   cached at the right width, so devices are never labeled with a neighbor's vendor.
 - **No lookup** for locally administered (often randomized) or multicast addresses
+- **Only the vendor prefix is sent**: the first 9 hex digits, zero-padded, the device-specific part of
+  a MAC address never leaves the NetBox server
 - **MAC Vendors** list with filtering, global search, REST API and GraphQL
 
 ![Vendor column on the MAC address list](https://raw.githubusercontent.com/sapisos/netbox-macadress/main/docs/images/mac-address-list.png)

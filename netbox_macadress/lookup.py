@@ -5,6 +5,10 @@ the MACVendor table from the MAC addresses recorded in NetBox.
 Without an API key the plugin uses the keyless name-only endpoint, one address
 per request at most 60 a minute. With a key it uses the batch endpoint, 100
 addresses per request, which also returns the block, country and address.
+
+Only the first 9 hex digits of an address are sent, they cover the narrowest
+IEEE block (MA-S, 36 bits), so the zero-padded remainder cannot change the
+answer while the device-specific tail never leaves NetBox.
 """
 
 import logging
@@ -138,7 +142,9 @@ def pending_lookups(keyed):
         if entry is not None and _is_fresh(entry, keyed, cutoff):
             continue
         key = entry.prefix if entry is not None else lookup_key(hex12)
-        pending.setdefault(key, hex12)
+        # Only the first 9 hex digits (the narrowest IEEE block, MA-S) can affect the answer, so
+        # zero-pad the remainder of the MAC address to avoid sending device-specific data to the API
+        pending.setdefault(key, hex12[:9] + "000")
     return pending
 
 

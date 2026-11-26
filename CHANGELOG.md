@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file. The format is b
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Only the first 9 hex digits of a MAC address (the narrowest IEEE block, MA-S) are sent to the
+  API, zero-padded to 12 digits. This cannot change a lookup result, and the device-specific tail
+  of each address no longer leaves the NetBox server.
+
 ## [0.1.0] - 2026-10-12
 
 ### Release Summary
