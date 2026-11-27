@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file. The format is b
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Keyed (batch) lookups failed with a database error, the API client returns the block type as a
+  `str` enum, and `str()` was called on it, causing `"BlockType.MA_L"` instead of `"MA-L"`,
+  overflowing the `block_type` column. The value is stored as-is instead.
+
+## [0.1.0] - 2026-10-12
 ## [0.1.0] - 2026-10-12
 
 ### Release Summary

@@ -9,7 +9,7 @@ from django.utils import timezone
 from .. import lookup
 from ..choices import VendorSourceChoices, VendorStatusChoices
 from ..models import MACVendor
-from .fakes import FakeClient, batch_item
+from .fakes import BlockType, FakeClient, batch_item
 
 PLUGIN_CONFIG = {
     "api_key": "",
@@ -132,7 +132,7 @@ class KeyedSyncTestCase(TestCase):
                     "000393000001", "Apple, Inc.", country="US", address="1 Infinite Loop Cupertino CA US 95014"
                 ),
                 "70B3D5F00001": batch_item(
-                    "70B3D5F00001", "Aplex Technology Inc.", prefix_length=36, block_type="MA-S"
+                    "70B3D5F00001", "Aplex Technology Inc.", prefix_length=36, block_type=BlockType.MA_S
                 ),
             }
         )
@@ -154,7 +154,7 @@ class KeyedSyncTestCase(TestCase):
             last_checked=now,
         )
         client = FakeClient(
-            items={"70B3D5F00001": batch_item("70B3D5F00001", "Someone", prefix_length=28, block_type="MA-M")}
+            items={"70B3D5F00001": batch_item("70B3D5F00001", "Someone", prefix_length=28, block_type=BlockType.MA_M)}
         )
         self.assertEqual(self.run_sync(client), (1, 0))
         # The MA-M entry replaces the narrower keyless one it contains.

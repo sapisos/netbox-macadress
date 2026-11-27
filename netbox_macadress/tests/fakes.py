@@ -5,8 +5,10 @@ A stand-in for macadress.Client, so tests never reach the network.
 from contextlib import contextmanager
 from types import SimpleNamespace
 
+from macadress.enums import BlockType
 
-def batch_item(mac, organization=None, prefix_length=24, block_type="MA-L", country="", address="", error=None):
+
+def batch_item(mac, organization=None, prefix_length=24, block_type=BlockType.MA_L, country="", address="", error=None):
     return SimpleNamespace(
         input=mac,
         failed=error is not None,

@@ -96,7 +96,7 @@ def _store(key, *, status, source, organization="", block_type="", country="", a
         "prefix_length": len(key) * 4,
         "status": status,
         "organization": (organization or "")[:255],
-        "block_type": block_type or "",
+        "block_type": (block_type or "")[:10],
         "country": (country or "")[:2],
         "address": (address or "")[:500],
         "source": source,
@@ -185,7 +185,7 @@ def _lookup_batch(client, targets, log):
                 status=VendorStatusChoices.REGISTERED if item.registered else VendorStatusChoices.UNREGISTERED,
                 source=VendorSourceChoices.API_KEY,
                 organization=organization,
-                block_type=str(item.block_type or ""),
+                block_type=item.block_type or "",
                 country=item.country or "",
                 address=item.vendor_address or "",
             )
